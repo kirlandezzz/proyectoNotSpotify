@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 
 // Este VM se encarga de conectar los datos (reproductor, cancion actual) con la UI.
 // Incluye la lógica necesaria para la gestión del reproductor
-class ExoPlayerViewModel : ViewModel(){
+class ExoPlayerViewModel : ViewModel() {
 
     /* TODO: Pasos a seguir
      *  1 - Finalizar la función crearExoPlayer
@@ -30,42 +30,54 @@ class ExoPlayerViewModel : ViewModel(){
      */
 
     // El reproductor de musica, empieza a null
-    private val _exoPlayer : MutableStateFlow<ExoPlayer?> = MutableStateFlow(null)
+    private val _exoPlayer: MutableStateFlow<ExoPlayer?> = MutableStateFlow(null)
     val exoPlayer = _exoPlayer.asStateFlow()
 
     // La cancion actual que está sonando
-    private val _actual  = MutableStateFlow(R.raw.songone)
+    private val _actual = MutableStateFlow(R.raw.songone)
     val actual = _actual.asStateFlow()
 
     // La duración de la canción
-    private val _duracion  = MutableStateFlow(0)
+    private val _duracion = MutableStateFlow(0)
     val duracion = _duracion.asStateFlow()
 
     // El progreso (en segundos) actual de la cancion
     private val _progreso = MutableStateFlow(0)
     val progreso = _progreso.asStateFlow()
 
-    fun crearExoPlayer(context: Context){
-        /* TODO : Crear el _exoPlayer usando el build(), prepare() y playWhenReady */
+    private val listaCanciones = List(5) { R.raw.songone;R.raw.songtwo; R.raw.songthree; R.raw.songfour;  R.raw.songfive;}
+
+    private val cancionesConImagenes = mapOf(
+        R.raw.songone to R.drawable.ibai,
+        R.raw.songtwo to R.drawable.bunny,
+        R.raw.songthree to R.drawable.crab,
+        R.raw.songfour to R.drawable.lethal,
+        R.raw.songfive to R.drawable.covid
+
+    )
+    private val _imagenActual = MutableStateFlow(R.drawable.ibai) // Imagen predeterminada
+    val imagenActual = _imagenActual.asStateFlow()
+
+    fun crearExoPlayer(context: Context) {/* TODO : Crear el _exoPlayer usando el build(), prepare() y playWhenReady */
         _exoPlayer.value = ExoPlayer.Builder(context).build()
         _exoPlayer.value!!.prepare()
         _exoPlayer.value!!.playWhenReady = true
 
     }
-    fun hacerSonarMusica(context: Context){
-        /* TODO: 1 - Crear un mediaItem con la cancion actual
+
+    fun hacerSonarMusica(context: Context) {/* TODO: 1 - Crear un mediaItem con la cancion actual
          *  2 - Establecer dicho mediaItem
          *  3 - Activar el playWhenReady
          */
 
         // Este listener se mantendrá mientras NO se librere el _exoPlayer
         // Asi que no hace falta crearlo más de una vez.
-        var cancion = MediaItem.fromUri(obtenerRuta(context,_actual.value))
+        var cancion = MediaItem.fromUri(obtenerRuta(context, _actual.value))
         _exoPlayer.value!!.setMediaItem(cancion)
         _exoPlayer.value!!.playWhenReady = true
-        _exoPlayer.value!!.addListener(object : Player.Listener{
+        _exoPlayer.value!!.addListener(object : Player.Listener {
             override fun onPlaybackStateChanged(playbackState: Int) {
-                if(playbackState == Player.STATE_READY){
+                if (playbackState == Player.STATE_READY) {
                     // El Player está preparado para empezar la reproducción.
                     // Si playWhenReady es true, empezará a sonar la música.
 
@@ -74,29 +86,25 @@ class ExoPlayerViewModel : ViewModel(){
 
                     viewModelScope.launch {
                         /* TODO: Actualizar el progreso usando currentPosition cada segundo */
-                        while(isActive){
+                        while (isActive) {
                             _progreso.value = _exoPlayer.value!!.currentPosition.toInt()
                             delay(1000)
                         }
 
                     }
-                }
-                else if(playbackState == Player.STATE_BUFFERING){
+                } else if (playbackState == Player.STATE_BUFFERING) {
                     // El Player está cargando el archivo, preparando la reproducción.
                     // No está listo, pero está en ello.
-                }
-                else if(playbackState == Player.STATE_ENDED){
+                } else if (playbackState == Player.STATE_ENDED) {
                     // El Player ha terminado de reproducir el archivo.
                     CambiarCancion(context)
 
-                }
-                else if(playbackState == Player.STATE_IDLE){
+                } else if (playbackState == Player.STATE_IDLE) {
                     // El player se ha creado, pero no se ha lanzado la operación prepared.
                 }
 
             }
-        }
-        )
+        })
 
 
     }
@@ -107,11 +115,10 @@ class ExoPlayerViewModel : ViewModel(){
         super.onCleared()
     }
 
-    fun PausarOSeguirMusica() {
-        /* TODO: Si el reproductor esta sonando, lo pauso. Si no, lo reproduzco */
-        if (_exoPlayer.value!!.isPlaying){
+    fun PausarOSeguirMusica() {/* TODO: Si el reproductor esta sonando, lo pauso. Si no, lo reproduzco */
+        if (_exoPlayer.value!!.isPlaying) {
             _exoPlayer.value!!.pause()
-        }else {
+        } else {
             _exoPlayer.value!!.play()
         }
     }
@@ -119,22 +126,23 @@ class ExoPlayerViewModel : ViewModel(){
     fun CambiarCancion(context: Context) {
         _exoPlayer.value!!.stop()
         _exoPlayer.value!!.clearMediaItems()
-        if(_actual.value == R.raw.songone) _actual.value = R.raw.songtwo
-        else  _actual.value = R.raw.songone
+        var index = listaCanciones.indexOf(_actual.value)
+        _actual.value++
+        _imagenActual.value = cancionesConImagenes[_actual.value] ?: R.drawable.ibai
         _exoPlayer.value!!.setMediaItem(MediaItem.fromUri(obtenerRuta(context, _actual.value)))
         _exoPlayer.value!!.prepare()
         _exoPlayer.value!!.playWhenReady = true
     }
 }
+                    //Tras reproducir las 3 canciones, se chrashea 👍
 
 // Funcion auxiliar que devuelve la ruta de un fichero a partir de su ID
 @Throws(Resources.NotFoundException::class)
 fun obtenerRuta(context: Context, @AnyRes resId: Int): Uri {
     val res: Resources = context.resources
     return Uri.parse(
-        ContentResolver.SCHEME_ANDROID_RESOURCE +
-                "://" + res.getResourcePackageName(resId)
-                + '/' + res.getResourceTypeName(resId)
-                + '/' + res.getResourceEntryName(resId)
+        ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + res.getResourcePackageName(resId) + '/' + res.getResourceTypeName(
+            resId
+        ) + '/' + res.getResourceEntryName(resId)
     )
 }

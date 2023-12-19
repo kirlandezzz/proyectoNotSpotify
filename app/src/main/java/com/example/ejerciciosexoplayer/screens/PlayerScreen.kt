@@ -13,6 +13,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonDefaults.shape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -38,6 +39,7 @@ fun ExoPlayerScreen(viewModelScaffold: ScaffoldViewModel = viewModel()) {
     val exoPlayerViewModel: ExoPlayerViewModel = viewModel()
     val duracion by exoPlayerViewModel.duracion.collectAsStateWithLifecycle()
     val posicion by exoPlayerViewModel.progreso.collectAsStateWithLifecycle()
+    val imagenActual by exoPlayerViewModel.imagenActual.collectAsStateWithLifecycle()
 
     /* TODO: Llamar a crearExoPlayer y hacerSonarMusica */
 
@@ -52,27 +54,46 @@ fun ExoPlayerScreen(viewModelScaffold: ScaffoldViewModel = viewModel()) {
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Now playing")
-        Image(painter = painterResource(id = R.drawable.ibai), contentDescription = null)
+
+        Column {
+
+        }
+        Image(painter = painterResource(id = imagenActual), contentDescription = null)
+
+        Slider(value = 0f, onValueChange = {})
 
         Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
             Text("${duracion / 1000}", Modifier.fillMaxWidth())
             Text(text = "${posicion / 1000}", Modifier.fillMaxWidth())
         }
+
+
         Row {
             Button(
-                onClick = { exoPlayerViewModel.PausarOSeguirMusica() },
+                onClick = { },
                 shape = CircleShape,
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black)
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    contentColor = Color.Black
+                )
             ) {
-                Icon(painter = painterResource(id = R.drawable.baseline_shuffle_24), contentDescription = null)
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_shuffle_24),
+                    contentDescription = null
+                )
             }
             Button(
-                onClick = { exoPlayerViewModel.PausarOSeguirMusica() },
+                onClick = {},
                 shape = CircleShape,
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black)
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    contentColor = Color.Black
+                )
             ) {
-                Icon(painter = painterResource(id = R.drawable.baseline_arrow_left_24), contentDescription = null)
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_arrow_left_24),
+                    contentDescription = null
+                )
             }
             Button(
                 onClick = { exoPlayerViewModel.PausarOSeguirMusica() },
@@ -82,18 +103,30 @@ fun ExoPlayerScreen(viewModelScaffold: ScaffoldViewModel = viewModel()) {
                 Icon(painter = painterResource(id = R.drawable.play), contentDescription = null)
             }
             Button(
-                onClick = { exoPlayerViewModel.PausarOSeguirMusica() },
+                onClick = { exoPlayerViewModel.CambiarCancion(contexto);  },
                 shape = CircleShape,
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black)
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    contentColor = Color.Black
+                )
             ) {
-                Icon(painter = painterResource(id = R.drawable.baseline_arrow_right_24), contentDescription = null)
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_arrow_right_24),
+                    contentDescription = null
+                )
             }
             Button(
-                onClick = { exoPlayerViewModel.PausarOSeguirMusica() },
+                onClick = {},
                 shape = CircleShape,
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black)
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    contentColor = Color.Black
+                )
             ) {
-                Icon(painter = painterResource(id = R.drawable.baseline_loop_24), contentDescription = null)
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_loop_24),
+                    contentDescription = null
+                )
             }
         }
     }
