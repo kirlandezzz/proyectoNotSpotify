@@ -1,3 +1,5 @@
+@file:OptIn(UnstableApi::class)
+
 package com.example.ejerciciosexoplayer.shared
 
 import android.content.ContentResolver
@@ -5,17 +7,23 @@ import android.content.Context
 import android.content.res.Resources
 import android.net.Uri
 import androidx.annotation.AnyRes
+import androidx.annotation.OptIn
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import com.example.ejerciciosexoplayer.R
+import com.example.ejerciciosexoplayer.objetos.Cancion
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.util.Collections
+
 
 // Este VM se encarga de conectar los datos (reproductor, cancion actual) con la UI.
 // Incluye la lógica necesaria para la gestión del reproductor
@@ -45,18 +53,33 @@ class ExoPlayerViewModel : ViewModel() {
     private val _progreso = MutableStateFlow(0)
     val progreso = _progreso.asStateFlow()
 
-    private val listaCanciones = List(5) { R.raw.songone;R.raw.songtwo; R.raw.songthree; R.raw.songfour;  R.raw.songfive;}
 
-    private val cancionesConImagenes = mapOf(
-        R.raw.songone to R.drawable.ibai,
-        R.raw.songtwo to R.drawable.bunny,
-        R.raw.songthree to R.drawable.crab,
-        R.raw.songfour to R.drawable.lethal,
-        R.raw.songfive to R.drawable.covid
+    private val original = listOf(
+        R.raw.songone, R.raw.songtwo, R.raw.songthree, R.raw.songfour, R.raw.songfive
+    )
+    private var listaCanciones = original.toList()
+
+
+    //Sirve para Shuffle
+    private var isShuffled = false
+
+    //Bucle
+    private var isLooped = false
+
+
+    private val DatosCanciones = mapOf(
+        R.raw.songone to Cancion("Song One", R.drawable.ibai, Color.Red),
+        R.raw.songtwo to Cancion("Song Two", R.drawable.bunny, Color.Green),
+        R.raw.songthree to Cancion("Song Three", R.drawable.crab, Color.Blue),
+        R.raw.songfour to Cancion("Song Four", R.drawable.lethal, Color.Yellow),
+        R.raw.songfive to Cancion("Song Five", R.drawable.covid, Color.Magenta)
 
     )
     private val _imagenActual = MutableStateFlow(R.drawable.ibai) // Imagen predeterminada
     val imagenActual = _imagenActual.asStateFlow()
+
+    private val _titulo = MutableStateFlow(DatosCanciones[listaCanciones[R.raw.songone]]?.titulo) // Imagen predeterminada
+    val titulo = _titulo.asStateFlow()
 
     fun crearExoPlayer(context: Context) {/* TODO : Crear el _exoPlayer usando el build(), prepare() y playWhenReady */
         _exoPlayer.value = ExoPlayer.Builder(context).build()
@@ -96,8 +119,12 @@ class ExoPlayerViewModel : ViewModel() {
                     // El Player está cargando el archivo, preparando la reproducción.
                     // No está listo, pero está en ello.
                 } else if (playbackState == Player.STATE_ENDED) {
-                    // El Player ha terminado de reproducir el archivo.
-                    CambiarCancion(context)
+                    if (!isLooped) {
+                        CambiarCancion(context)
+                    } else {
+                        _exoPlayer.value!!.seekTo(0)
+                        _exoPlayer.value!!.play()
+                    }
 
                 } else if (playbackState == Player.STATE_IDLE) {
                     // El player se ha creado, pero no se ha lanzado la operación prepared.
@@ -126,17 +153,69 @@ class ExoPlayerViewModel : ViewModel() {
     fun CambiarCancion(context: Context) {
         _exoPlayer.value!!.stop()
         _exoPlayer.value!!.clearMediaItems()
-        var index = listaCanciones.indexOf(_actual.value)
-        _actual.value++
-        _imagenActual.value = cancionesConImagenes[_actual.value] ?: R.drawable.ibai
+        val currentIndex = listaCanciones.indexOf(_actual.value)
+        val nextIndex = (currentIndex + 1) % listaCanciones.size
+        _actual.value = listaCanciones[nextIndex]
+        _imagenActual.value = DatosCanciones[listaCanciones[nextIndex]]?.imagen ?: R.drawable.ibai
         _exoPlayer.value!!.setMediaItem(MediaItem.fromUri(obtenerRuta(context, _actual.value)))
         _exoPlayer.value!!.prepare()
         _exoPlayer.value!!.playWhenReady = true
     }
-}
-                    //Tras reproducir las 3 canciones, se chrashea 👍
 
-// Funcion auxiliar que devuelve la ruta de un fichero a partir de su ID
+    fun volverCancion(context: Context) {
+        _exoPlayer.value!!.stop()
+        _exoPlayer.value!!.clearMediaItems()
+
+        val currentIndex = listaCanciones.indexOf(_actual.value)
+        val previousIndex = if (currentIndex <= 0) listaCanciones.size - 1 else currentIndex - 1
+
+        _actual.value = listaCanciones[previousIndex]
+        _imagenActual.value = DatosCanciones[_actual.value]?.imagen ?: R.drawable.ibai
+
+        _exoPlayer.value!!.setMediaItem(MediaItem.fromUri(obtenerRuta(context, _actual.value)))
+        _exoPlayer.value!!.prepare()
+        _exoPlayer.value!!.playWhenReady = true
+    }
+
+    fun shuffleSongs(context: Context) {
+        if (!isShuffled) {
+
+            Collections.shuffle(listaCanciones)
+            isShuffled = true
+
+        } else {
+
+            listaCanciones = original.toList()
+            isShuffled = false
+        }
+
+        _exoPlayer.value?.let { exoPlayer ->
+            exoPlayer.stop()
+            exoPlayer.clearMediaItems()
+
+            listaCanciones.forEach { songResId ->
+                exoPlayer.addMediaItem(MediaItem.fromUri(obtenerRuta(context, songResId)))
+            }
+
+            exoPlayer.prepare()
+
+            if (!isShuffled) {
+                CambiarCancion(context)
+            }
+
+        }
+
+
+    }
+
+    fun loop() {
+        isLooped = !isLooped
+
+    }
+
+}
+
+
 @Throws(Resources.NotFoundException::class)
 fun obtenerRuta(context: Context, @AnyRes resId: Int): Uri {
     val res: Resources = context.resources

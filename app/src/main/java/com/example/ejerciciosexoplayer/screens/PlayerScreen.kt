@@ -40,7 +40,7 @@ fun ExoPlayerScreen(viewModelScaffold: ScaffoldViewModel = viewModel()) {
     val duracion by exoPlayerViewModel.duracion.collectAsStateWithLifecycle()
     val posicion by exoPlayerViewModel.progreso.collectAsStateWithLifecycle()
     val imagenActual by exoPlayerViewModel.imagenActual.collectAsStateWithLifecycle()
-
+    val tituloActual by exoPlayerViewModel.titulo.collectAsStateWithLifecycle()
     /* TODO: Llamar a crearExoPlayer y hacerSonarMusica */
 
 
@@ -55,9 +55,9 @@ fun ExoPlayerScreen(viewModelScaffold: ScaffoldViewModel = viewModel()) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Column {
+        Text(text = tituloActual, style = TextStyle(color = Color.Black))
 
-        }
+
         Image(painter = painterResource(id = imagenActual), contentDescription = null)
 
         Slider(value = 0f, onValueChange = {})
@@ -70,7 +70,7 @@ fun ExoPlayerScreen(viewModelScaffold: ScaffoldViewModel = viewModel()) {
 
         Row {
             Button(
-                onClick = { },
+                onClick = {exoPlayerViewModel.shuffleSongs(contexto)},
                 shape = CircleShape,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White,
@@ -83,7 +83,7 @@ fun ExoPlayerScreen(viewModelScaffold: ScaffoldViewModel = viewModel()) {
                 )
             }
             Button(
-                onClick = {},
+                onClick = {exoPlayerViewModel.volverCancion(contexto)},
                 shape = CircleShape,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White,
@@ -116,7 +116,7 @@ fun ExoPlayerScreen(viewModelScaffold: ScaffoldViewModel = viewModel()) {
                 )
             }
             Button(
-                onClick = {},
+                onClick = {exoPlayerViewModel.loop()},
                 shape = CircleShape,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White,
