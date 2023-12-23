@@ -82,6 +82,9 @@ class ExoPlayerViewModel : ViewModel() {
         MutableStateFlow(datosCanciones[R.raw.songone]!!.titulo) // titulo predeterminado
     val titulo = _titulo.asStateFlow()
 
+    private val _posSlider = MutableStateFlow(0f)
+    val posSlider = _posSlider.asStateFlow()
+
     fun crearExoPlayer(context: Context) {/* TODO : Crear el _exoPlayer usando el build(), prepare() y playWhenReady */
         _exoPlayer.value = ExoPlayer.Builder(context).build()
         _exoPlayer.value!!.prepare()
@@ -103,8 +106,9 @@ class ExoPlayerViewModel : ViewModel() {
             override fun onPlaybackStateChanged(playbackState: Int) {
                 if (playbackState == Player.STATE_READY) {
                     // El Player está preparado para empezar la reproducción.
-                    // Si playWhenReady es true, empezará a sonar la música.
-
+                    // Si playWhenReady es true, empezará a sonar la música.\
+                    val posActual = _exoPlayer.value!!.currentPosition.toFloat() / _duracion.value
+                    _posSlider.value = posActual
                     /* TODO: Actualizar la duración*/
                     _duracion.value = _exoPlayer.value!!.duration.toInt()
 
@@ -215,6 +219,14 @@ class ExoPlayerViewModel : ViewModel() {
         isLooped = !isLooped
 
     }
+
+    fun moverSlider(value: Float) {
+        _posSlider.value = value
+
+        val newPosition = (value * _duracion.value).toLong()
+        _exoPlayer.value?.seekTo(newPosition)
+    }
+
 
 }
 

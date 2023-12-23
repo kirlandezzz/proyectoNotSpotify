@@ -41,6 +41,7 @@ fun ExoPlayerScreen(viewModelScaffold: ScaffoldViewModel = viewModel()) {
     val posicion by exoPlayerViewModel.progreso.collectAsStateWithLifecycle()
     val imagenActual by exoPlayerViewModel.imagenActual.collectAsStateWithLifecycle()
     val tituloActual by exoPlayerViewModel.titulo.collectAsStateWithLifecycle()
+    val posSlider by exoPlayerViewModel.posSlider.collectAsStateWithLifecycle()
 
     //Barra duracion en min y seg
     val minutosDuracion = duracion / 1000 / 60
