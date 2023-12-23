@@ -67,7 +67,7 @@ class ExoPlayerViewModel : ViewModel() {
     private var isLooped = false
 
 
-    private val DatosCanciones = mapOf(
+    private val datosCanciones = mapOf(
         R.raw.songone to Cancion("Song One", R.drawable.ibai, Color.Red),
         R.raw.songtwo to Cancion("Song Two", R.drawable.bunny, Color.Green),
         R.raw.songthree to Cancion("Song Three", R.drawable.crab, Color.Blue),
@@ -78,7 +78,8 @@ class ExoPlayerViewModel : ViewModel() {
     private val _imagenActual = MutableStateFlow(R.drawable.ibai) // Imagen predeterminada
     val imagenActual = _imagenActual.asStateFlow()
 
-    private val _titulo = MutableStateFlow(DatosCanciones[listaCanciones[R.raw.songone]]?.titulo) // Imagen predeterminada
+    private val _titulo =
+        MutableStateFlow(datosCanciones[R.raw.songone]!!.titulo) // titulo predeterminado
     val titulo = _titulo.asStateFlow()
 
     fun crearExoPlayer(context: Context) {/* TODO : Crear el _exoPlayer usando el build(), prepare() y playWhenReady */
@@ -156,7 +157,9 @@ class ExoPlayerViewModel : ViewModel() {
         val currentIndex = listaCanciones.indexOf(_actual.value)
         val nextIndex = (currentIndex + 1) % listaCanciones.size
         _actual.value = listaCanciones[nextIndex]
-        _imagenActual.value = DatosCanciones[listaCanciones[nextIndex]]?.imagen ?: R.drawable.ibai
+        _imagenActual.value = datosCanciones[listaCanciones[nextIndex]]?.imagen ?: R.drawable.ibai
+        _titulo.value = datosCanciones[listaCanciones[nextIndex]]?.titulo
+            ?: datosCanciones[R.raw.songone]!!.titulo
         _exoPlayer.value!!.setMediaItem(MediaItem.fromUri(obtenerRuta(context, _actual.value)))
         _exoPlayer.value!!.prepare()
         _exoPlayer.value!!.playWhenReady = true
@@ -170,7 +173,7 @@ class ExoPlayerViewModel : ViewModel() {
         val previousIndex = if (currentIndex <= 0) listaCanciones.size - 1 else currentIndex - 1
 
         _actual.value = listaCanciones[previousIndex]
-        _imagenActual.value = DatosCanciones[_actual.value]?.imagen ?: R.drawable.ibai
+        _imagenActual.value = datosCanciones[_actual.value]?.imagen ?: R.drawable.ibai
 
         _exoPlayer.value!!.setMediaItem(MediaItem.fromUri(obtenerRuta(context, _actual.value)))
         _exoPlayer.value!!.prepare()

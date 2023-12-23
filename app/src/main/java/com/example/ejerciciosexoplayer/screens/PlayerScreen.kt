@@ -55,7 +55,7 @@ fun ExoPlayerScreen(viewModelScaffold: ScaffoldViewModel = viewModel()) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Text(text = tituloActual, style = TextStyle(color = Color.Black))
+        Text(text = tituloActual)
 
 
         Image(painter = painterResource(id = imagenActual), contentDescription = null)
