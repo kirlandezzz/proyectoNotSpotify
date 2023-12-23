@@ -1,5 +1,6 @@
 package com.example.ejerciciosexoplayer.screens
 
+import android.content.res.Resources.Theme
 import android.graphics.drawable.Drawable
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
@@ -13,12 +14,17 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonDefaults.shape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,6 +36,9 @@ import androidx.media3.exoplayer.ExoPlayer
 import com.example.ejerciciosexoplayer.R
 import com.example.ejerciciosexoplayer.shared.ExoPlayerViewModel
 import com.example.ejerciciosexoplayer.shared.ScaffoldViewModel
+import com.example.ejerciciosexoplayer.ui.theme.Azul
+import com.example.ejerciciosexoplayer.ui.theme.AzulOsc
+import com.example.ejerciciosexoplayer.ui.theme.Blanco
 
 @Composable
 fun ExoPlayerScreen(viewModelScaffold: ScaffoldViewModel = viewModel()) {
@@ -49,6 +58,15 @@ fun ExoPlayerScreen(viewModelScaffold: ScaffoldViewModel = viewModel()) {
     val minutosPosicion = posicion / 1000 / 60
     val segundosPosicion = posicion / 1000 % 60
 
+    var loopButtonColor by remember {
+        mutableStateOf(AzulOsc)
+    }
+
+    var ShufleColor by remember {
+        mutableStateOf(AzulOsc)
+    }
+
+    //colore https://colorhunt.co/palette/ecf4d69ad0c22d9596265073
     /* TODO: Llamar a crearExoPlayer y hacerSonarMusica */
 
 
@@ -67,7 +85,17 @@ fun ExoPlayerScreen(viewModelScaffold: ScaffoldViewModel = viewModel()) {
 
         Image(painter = painterResource(id = imagenActual), contentDescription = null)
 
-        Slider(value = 0f, onValueChange = {})
+        Slider(
+            value = posSlider,
+            colors = SliderDefaults.colors(AzulOsc, Azul),
+            onValueChange = { value ->
+                exoPlayerViewModel.moverSlider(value)
+            },
+            onValueChangeFinished = {
+                exoPlayerViewModel.onSliderInteractionEnd()
+            },
+            valueRange = 0f..1f
+        )
 
         Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
             Text(text = String.format("%02d:%02d", minutosPosicion, segundosPosicion))
@@ -77,11 +105,15 @@ fun ExoPlayerScreen(viewModelScaffold: ScaffoldViewModel = viewModel()) {
 
         Row {
             Button(
-                onClick = {exoPlayerViewModel.shuffleSongs(contexto)},
-                shape = CircleShape,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
-                    contentColor = Color.Black
+                onClick = {
+                    exoPlayerViewModel.shuffleSongs(contexto)
+                    ShufleColor = if (ShufleColor == AzulOsc) {
+                        Azul
+                    } else {
+                        AzulOsc
+                    }
+                }, shape = CircleShape, colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent, contentColor = ShufleColor
                 )
             ) {
                 Icon(
@@ -90,11 +122,10 @@ fun ExoPlayerScreen(viewModelScaffold: ScaffoldViewModel = viewModel()) {
                 )
             }
             Button(
-                onClick = {exoPlayerViewModel.volverCancion(contexto)},
+                onClick = { exoPlayerViewModel.volverCancion(contexto) },
                 shape = CircleShape,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
-                    contentColor = Color.Black
+                    containerColor = Color.Transparent, contentColor = AzulOsc
                 )
             ) {
                 Icon(
@@ -105,16 +136,15 @@ fun ExoPlayerScreen(viewModelScaffold: ScaffoldViewModel = viewModel()) {
             Button(
                 onClick = { exoPlayerViewModel.PausarOSeguirMusica() },
                 shape = CircleShape,
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
+                colors = ButtonDefaults.buttonColors(containerColor = AzulOsc)
             ) {
                 Icon(painter = painterResource(id = R.drawable.play), contentDescription = null)
             }
             Button(
-                onClick = { exoPlayerViewModel.CambiarCancion(contexto);  },
+                onClick = { exoPlayerViewModel.CambiarCancion(contexto); },
                 shape = CircleShape,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
-                    contentColor = Color.Black
+                    containerColor = Color.Transparent, contentColor = AzulOsc
                 )
             ) {
                 Icon(
@@ -123,11 +153,15 @@ fun ExoPlayerScreen(viewModelScaffold: ScaffoldViewModel = viewModel()) {
                 )
             }
             Button(
-                onClick = {exoPlayerViewModel.loop()},
-                shape = CircleShape,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
-                    contentColor = Color.Black
+                onClick = {
+                    exoPlayerViewModel.loop()
+                    loopButtonColor = if (loopButtonColor == AzulOsc) {
+                        Azul
+                    } else {
+                        AzulOsc
+                    }
+                }, shape = CircleShape, colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent, contentColor = loopButtonColor
                 )
             ) {
                 Icon(

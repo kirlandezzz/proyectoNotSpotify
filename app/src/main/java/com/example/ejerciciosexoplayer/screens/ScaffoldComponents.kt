@@ -1,5 +1,6 @@
 package com.example.ejerciciosexoplayer.screens
 
+import android.support.v4.os.IResultReceiver2.Default
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,17 +19,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.ejerciciosexoplayer.ui.theme.AzulOsc
+import com.google.common.base.Defaults
 
 
 @Composable
-fun BarraInferior(funcionNavegarPlayer: () -> Unit,
-funcionNavegarFoto: () -> Unit){
-    BottomAppBar(modifier = Modifier.fillMaxWidth(),
-    containerColor = Color.Red) {
-        Row(){
-           IconButton(onClick = funcionNavegarPlayer, modifier = Modifier.weight(1f)) {
-               Icon(Icons.Default.PlayArrow, contentDescription = "")
-           }
+fun BarraInferior(
+    funcionNavegarPlayer: () -> Unit,
+    funcionNavegarFoto: () -> Unit
+) {
+    BottomAppBar(
+        modifier = Modifier.fillMaxWidth(),
+        containerColor = AzulOsc
+    ) {
+        Row() {
+            IconButton(onClick = funcionNavegarPlayer, modifier = Modifier.weight(1f)) {
+                Icon(Icons.Default.PlayArrow, contentDescription = "")
+            }
             IconButton(onClick = funcionNavegarFoto, modifier = Modifier.weight(1f)) {
                 Icon(Icons.Default.PictureInPicture, contentDescription = "")
             }
@@ -40,7 +47,12 @@ funcionNavegarFoto: () -> Unit){
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BarraSuperior(titulo : String){
-    CenterAlignedTopAppBar(title = { Text(titulo) }
+fun BarraSuperior(titulo: String) {
+    CenterAlignedTopAppBar(
+        title = { Text(titulo) },
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = AzulOsc,
+            titleContentColor = Color.White
+        )
     )
 }

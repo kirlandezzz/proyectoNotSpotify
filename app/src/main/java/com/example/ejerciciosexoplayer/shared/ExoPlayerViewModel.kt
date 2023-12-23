@@ -85,6 +85,8 @@ class ExoPlayerViewModel : ViewModel() {
     private val _posSlider = MutableStateFlow(0f)
     val posSlider = _posSlider.asStateFlow()
 
+    private val _isUserInteracting = MutableStateFlow(false)
+
     fun crearExoPlayer(context: Context) {/* TODO : Crear el _exoPlayer usando el build(), prepare() y playWhenReady */
         _exoPlayer.value = ExoPlayer.Builder(context).build()
         _exoPlayer.value!!.prepare()
@@ -111,6 +113,14 @@ class ExoPlayerViewModel : ViewModel() {
                     _posSlider.value = posActual
                     /* TODO: Actualizar la duración*/
                     _duracion.value = _exoPlayer.value!!.duration.toInt()
+
+                    viewModelScope.launch {
+                        while (isActive) {
+                            _progreso.value = _exoPlayer.value!!.currentPosition.toInt()
+                            _posSlider.value = _progreso.value.toFloat() / _duracion.value
+                            delay(1000)
+                        }
+                    }
 
                     viewModelScope.launch {
                         /* TODO: Actualizar el progreso usando currentPosition cada segundo */
@@ -221,10 +231,14 @@ class ExoPlayerViewModel : ViewModel() {
     }
 
     fun moverSlider(value: Float) {
+        _isUserInteracting.value = true
         _posSlider.value = value
-
         val newPosition = (value * _duracion.value).toLong()
         _exoPlayer.value?.seekTo(newPosition)
+    }
+
+    fun onSliderInteractionEnd() {
+        _isUserInteracting.value = false
     }
 
 

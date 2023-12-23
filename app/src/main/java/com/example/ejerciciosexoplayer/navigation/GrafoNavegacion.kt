@@ -26,6 +26,7 @@ import com.example.ejerciciosexoplayer.screens.PictureScreen
 import com.example.ejerciciosexoplayer.shared.ExoPlayerViewModel
 import com.example.ejerciciosexoplayer.shared.Rutas
 import com.example.ejerciciosexoplayer.shared.ScaffoldViewModel
+import com.example.ejerciciosexoplayer.ui.theme.Blanco
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,7 +59,7 @@ fun GrafoNavegacion(){
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues),
-                color = MaterialTheme.colorScheme.background
+                color = Blanco
             ) {
                 NavHost(navController = navController, startDestination = Rutas.Player.ruta){
                     composable(Rutas.Player.ruta){
@@ -68,6 +69,7 @@ fun GrafoNavegacion(){
                     composable(Rutas.Foto.ruta){
                         PictureScreen(viewModelScaffold)
                     }
+
                 }
             }
 
