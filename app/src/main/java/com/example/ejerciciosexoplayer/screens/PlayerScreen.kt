@@ -41,6 +41,13 @@ fun ExoPlayerScreen(viewModelScaffold: ScaffoldViewModel = viewModel()) {
     val posicion by exoPlayerViewModel.progreso.collectAsStateWithLifecycle()
     val imagenActual by exoPlayerViewModel.imagenActual.collectAsStateWithLifecycle()
     val tituloActual by exoPlayerViewModel.titulo.collectAsStateWithLifecycle()
+
+    //Barra duracion en min y seg
+    val minutosDuracion = duracion / 1000 / 60
+    val segundosDuracion = duracion / 1000 % 60
+    val minutosPosicion = posicion / 1000 / 60
+    val segundosPosicion = posicion / 1000 % 60
+
     /* TODO: Llamar a crearExoPlayer y hacerSonarMusica */
 
 
@@ -57,14 +64,13 @@ fun ExoPlayerScreen(viewModelScaffold: ScaffoldViewModel = viewModel()) {
 
         Text(text = tituloActual)
 
-
         Image(painter = painterResource(id = imagenActual), contentDescription = null)
 
         Slider(value = 0f, onValueChange = {})
 
         Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-            Text("${duracion / 1000}", Modifier.fillMaxWidth())
-            Text(text = "${posicion / 1000}", Modifier.fillMaxWidth())
+            Text(text = String.format("%02d:%02d", minutosPosicion, segundosPosicion))
+            Text(text = String.format("%02d:%02d", minutosDuracion, segundosDuracion))
         }
 
 
