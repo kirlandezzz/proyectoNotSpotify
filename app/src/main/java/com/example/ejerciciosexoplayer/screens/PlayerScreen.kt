@@ -1,26 +1,21 @@
 package com.example.ejerciciosexoplayer.screens
 
-import android.content.res.Resources.Theme
-import android.graphics.drawable.Drawable
-import androidx.activity.compose.BackHandler
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ButtonDefaults.shape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,15 +25,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.media3.exoplayer.ExoPlayer
 import com.example.ejerciciosexoplayer.R
 import com.example.ejerciciosexoplayer.shared.ExoPlayerViewModel
 import com.example.ejerciciosexoplayer.shared.ScaffoldViewModel
 import com.example.ejerciciosexoplayer.ui.theme.Azul
 import com.example.ejerciciosexoplayer.ui.theme.AzulOsc
-import com.example.ejerciciosexoplayer.ui.theme.Blanco
 
 @Composable
 fun ExoPlayerScreen(viewModelScaffold: ScaffoldViewModel = viewModel()) {
@@ -58,117 +53,134 @@ fun ExoPlayerScreen(viewModelScaffold: ScaffoldViewModel = viewModel()) {
     val minutosPosicion = posicion / 1000 / 60
     val segundosPosicion = posicion / 1000 % 60
 
-    var loopButtonColor by remember {
-        mutableStateOf(AzulOsc)
-    }
-
-    var ShufleColor by remember {
-        mutableStateOf(AzulOsc)
-    }
-
-    //colore https://colorhunt.co/palette/ecf4d69ad0c22d9596265073
-    /* TODO: Llamar a crearExoPlayer y hacerSonarMusica */
-
 
     LaunchedEffect(Unit) {
         exoPlayerViewModel.crearExoPlayer(contexto)
         exoPlayerViewModel.hacerSonarMusica(contexto)
     }
 
-
     Column(
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
-        Text(text = tituloActual)
-
-        Image(painter = painterResource(id = imagenActual), contentDescription = null)
-
-        Slider(
-            value = posSlider,
-            colors = SliderDefaults.colors(AzulOsc, Azul),
-            onValueChange = { value ->
-                exoPlayerViewModel.moverSlider(value)
-            },
-            onValueChangeFinished = {
-                exoPlayerViewModel.onSliderInteractionEnd()
-            },
-            valueRange = 0f..1f
+        Text(
+            text = tituloActual, fontSize = 32.sp, modifier = Modifier.weight(1.5f)
         )
 
-        Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-            Text(text = String.format("%02d:%02d", minutosPosicion, segundosPosicion))
-            Text(text = String.format("%02d:%02d", minutosDuracion, segundosDuracion))
+        Image(
+            painter = painterResource(id = imagenActual),
+            contentDescription = null,
+            modifier = Modifier.weight(4f),
+        )
+
+        SliderReproductor(value = posSlider, onValueChange = { value ->
+            exoPlayerViewModel.moverSlider(value)
+        }, onValueChangeFinished = { exoPlayerViewModel.onSliderInteractionEnd() })
+
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .padding(horizontal = 32.dp)
+        ) {
+            TextoTiempo(minutos = minutosPosicion, segundos = segundosPosicion)
+            TextoTiempo(minutos = minutosDuracion, segundos = segundosDuracion)
         }
 
-
-        Row {
-            Button(
-                onClick = {
-                    exoPlayerViewModel.shuffleSongs(contexto)
-                    ShufleColor = if (ShufleColor == AzulOsc) {
-                        Azul
-                    } else {
-                        AzulOsc
-                    }
-                }, shape = CircleShape, colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent, contentColor = ShufleColor
-                )
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.baseline_shuffle_24),
-                    contentDescription = null
-                )
-            }
-            Button(
-                onClick = { exoPlayerViewModel.volverCancion(contexto) },
-                shape = CircleShape,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent, contentColor = AzulOsc
-                )
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.baseline_arrow_left_24),
-                    contentDescription = null
-                )
-            }
-            Button(
-                onClick = { exoPlayerViewModel.PausarOSeguirMusica() },
-                shape = CircleShape,
-                colors = ButtonDefaults.buttonColors(containerColor = AzulOsc)
-            ) {
-                Icon(painter = painterResource(id = R.drawable.play), contentDescription = null)
-            }
-            Button(
-                onClick = { exoPlayerViewModel.CambiarCancion(contexto); },
-                shape = CircleShape,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent, contentColor = AzulOsc
-                )
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.baseline_arrow_right_24),
-                    contentDescription = null
-                )
-            }
-            Button(
-                onClick = {
-                    exoPlayerViewModel.loop()
-                    loopButtonColor = if (loopButtonColor == AzulOsc) {
-                        Azul
-                    } else {
-                        AzulOsc
-                    }
-                }, shape = CircleShape, colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent, contentColor = loopButtonColor
-                )
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.baseline_loop_24),
-                    contentDescription = null
-                )
-            }
+        Row(
+            modifier = Modifier.weight(1f)
+        ) {
+            BotonesReproductor(exoPlayerViewModel, contexto)
         }
+    }
+}
+
+@Composable
+fun SliderReproductor(
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    onValueChangeFinished: () -> Unit,
+    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+    modifier: Modifier = Modifier,
+) {
+    Slider(value = value,
+        colors = SliderDefaults.colors(AzulOsc, Azul),
+        onValueChange = { newValue ->
+            onValueChange(newValue)
+        },
+        onValueChangeFinished = {
+            onValueChangeFinished()
+        },
+        valueRange = valueRange,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun TextoTiempo(minutos: Int, segundos: Int) {
+    Text(
+        text = String.format("%02d:%02d", minutos, segundos)
+    )
+}
+
+@Composable
+fun BotonesReproductor(exoPlayerViewModel: ExoPlayerViewModel, contexto: Context) {
+    var loopButtonColor by remember {
+        mutableStateOf(AzulOsc)
+    }
+
+    var shufleColor by remember {
+        mutableStateOf(AzulOsc)
+    }
+
+    Boton(iconId = R.drawable.baseline_shuffle_24, contentColor = shufleColor, onClick = {
+        exoPlayerViewModel.shuffleSongs(contexto)
+        shufleColor = if (shufleColor == AzulOsc) {
+            Azul
+        } else {
+            AzulOsc
+        }
+    })
+
+    Boton(iconId = R.drawable.baseline_arrow_left_24,
+        onClick = { exoPlayerViewModel.volverCancion(contexto) })
+
+    Button(
+        onClick = { exoPlayerViewModel.PausarOSeguirMusica() },
+        shape = CircleShape,
+        colors = ButtonDefaults.buttonColors(containerColor = AzulOsc)
+    ) {
+        Icon(painter = painterResource(id = R.drawable.play), contentDescription = null)
+    }
+
+    Boton(iconId = R.drawable.baseline_arrow_right_24,
+        onClick = { exoPlayerViewModel.CambiarCancion(contexto) })
+
+    Boton(iconId = R.drawable.baseline_loop_24, contentColor = loopButtonColor, onClick = {
+        exoPlayerViewModel.loop()
+        loopButtonColor = if (loopButtonColor == AzulOsc) {
+            Azul
+        } else {
+            AzulOsc
+        }
+    })
+}
+
+@Composable
+fun Boton(
+    iconId: Int,
+    contentColor: Color = AzulOsc,
+    onClick: () -> Unit,
+    buttonColor: Color = Color.Transparent,
+) {
+    Button(
+        onClick = onClick, colors = ButtonDefaults.buttonColors(
+            containerColor = buttonColor, contentColor = contentColor
+        )
+    ) {
+        Icon(
+            painter = painterResource(id = iconId), contentDescription = null
+        )
     }
 }

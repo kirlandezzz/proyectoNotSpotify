@@ -29,14 +29,6 @@ import java.util.Collections
 // Incluye la lógica necesaria para la gestión del reproductor
 class ExoPlayerViewModel : ViewModel() {
 
-    /* TODO: Pasos a seguir
-     *  1 - Finalizar la función crearExoPlayer
-     *  2 - Finalizar la función hacerSonarMusica, sin el listener
-     *  3 - Finalizar la funion PausarOSeguirMusica
-     *  4 - Finalizar el listener, para gestionar la duracion y el progreso
-     *  5 - Finalizar la funcion cambiarCancion
-     */
-
     // El reproductor de musica, empieza a null
     private val _exoPlayer: MutableStateFlow<ExoPlayer?> = MutableStateFlow(null)
     val exoPlayer = _exoPlayer.asStateFlow()
@@ -53,12 +45,10 @@ class ExoPlayerViewModel : ViewModel() {
     private val _progreso = MutableStateFlow(0)
     val progreso = _progreso.asStateFlow()
 
-
     private val original = listOf(
         R.raw.songone, R.raw.songtwo, R.raw.songthree, R.raw.songfour, R.raw.songfive
     )
     private var listaCanciones = original.toList()
-
 
     //Sirve para Shuffle
     private var isShuffled = false
@@ -66,14 +56,12 @@ class ExoPlayerViewModel : ViewModel() {
     //Bucle
     private var isLooped = false
 
-
     private val datosCanciones = mapOf(
         R.raw.songone to Cancion("Song One", R.drawable.ibai, Color.Red),
         R.raw.songtwo to Cancion("Song Two", R.drawable.bunny, Color.Green),
         R.raw.songthree to Cancion("Song Three", R.drawable.crab, Color.Blue),
         R.raw.songfour to Cancion("Song Four", R.drawable.lethal, Color.Yellow),
         R.raw.songfive to Cancion("Song Five", R.drawable.covid, Color.Magenta)
-
     )
     private val _imagenActual = MutableStateFlow(R.drawable.ibai) // Imagen predeterminada
     val imagenActual = _imagenActual.asStateFlow()
@@ -87,31 +75,22 @@ class ExoPlayerViewModel : ViewModel() {
 
     private val _isUserInteracting = MutableStateFlow(false)
 
-    fun crearExoPlayer(context: Context) {/* TODO : Crear el _exoPlayer usando el build(), prepare() y playWhenReady */
+    fun crearExoPlayer(context: Context) {
         _exoPlayer.value = ExoPlayer.Builder(context).build()
         _exoPlayer.value!!.prepare()
         _exoPlayer.value!!.playWhenReady = true
 
     }
 
-    fun hacerSonarMusica(context: Context) {/* TODO: 1 - Crear un mediaItem con la cancion actual
-         *  2 - Establecer dicho mediaItem
-         *  3 - Activar el playWhenReady
-         */
-
-        // Este listener se mantendrá mientras NO se librere el _exoPlayer
-        // Asi que no hace falta crearlo más de una vez.
+    fun hacerSonarMusica(context: Context) {
         var cancion = MediaItem.fromUri(obtenerRuta(context, _actual.value))
         _exoPlayer.value!!.setMediaItem(cancion)
         _exoPlayer.value!!.playWhenReady = true
         _exoPlayer.value!!.addListener(object : Player.Listener {
             override fun onPlaybackStateChanged(playbackState: Int) {
                 if (playbackState == Player.STATE_READY) {
-                    // El Player está preparado para empezar la reproducción.
-                    // Si playWhenReady es true, empezará a sonar la música.\
                     val posActual = _exoPlayer.value!!.currentPosition.toFloat() / _duracion.value
                     _posSlider.value = posActual
-                    /* TODO: Actualizar la duración*/
                     _duracion.value = _exoPlayer.value!!.duration.toInt()
 
                     viewModelScope.launch {
@@ -123,7 +102,6 @@ class ExoPlayerViewModel : ViewModel() {
                     }
 
                     viewModelScope.launch {
-                        /* TODO: Actualizar el progreso usando currentPosition cada segundo */
                         while (isActive) {
                             _progreso.value = _exoPlayer.value!!.currentPosition.toInt()
                             delay(1000)
@@ -147,17 +125,14 @@ class ExoPlayerViewModel : ViewModel() {
 
             }
         })
-
-
     }
 
-    // Este método se llama cuando el VM se destruya.
     override fun onCleared() {
         _exoPlayer.value!!.release()
         super.onCleared()
     }
 
-    fun PausarOSeguirMusica() {/* TODO: Si el reproductor esta sonando, lo pauso. Si no, lo reproduzco */
+    fun PausarOSeguirMusica() {
         if (_exoPlayer.value!!.isPlaying) {
             _exoPlayer.value!!.pause()
         } else {
@@ -166,45 +141,52 @@ class ExoPlayerViewModel : ViewModel() {
     }
 
     fun CambiarCancion(context: Context) {
-        _exoPlayer.value!!.stop()
-        _exoPlayer.value!!.clearMediaItems()
-        val currentIndex = listaCanciones.indexOf(_actual.value)
-        val nextIndex = (currentIndex + 1) % listaCanciones.size
-        _actual.value = listaCanciones[nextIndex]
-        _imagenActual.value = datosCanciones[listaCanciones[nextIndex]]?.imagen ?: R.drawable.ibai
-        _titulo.value = datosCanciones[listaCanciones[nextIndex]]?.titulo
-            ?: datosCanciones[R.raw.songone]!!.titulo
-        _exoPlayer.value!!.setMediaItem(MediaItem.fromUri(obtenerRuta(context, _actual.value)))
-        _exoPlayer.value!!.prepare()
-        _exoPlayer.value!!.playWhenReady = true
+        _exoPlayer.value?.apply {
+            stop()
+            clearMediaItems()
+
+            val currentIndex = listaCanciones.indexOf(_actual.value)
+            val nextIndex = (currentIndex + 1) % listaCanciones.size
+
+            _actual.value = listaCanciones[nextIndex]
+            val nextSong = datosCanciones[_actual.value]
+
+            _imagenActual.value = nextSong?.imagen ?: R.drawable.ibai
+            _titulo.value = nextSong?.titulo ?: datosCanciones[R.raw.songone]!!.titulo
+
+            setMediaItem(MediaItem.fromUri(obtenerRuta(context, _actual.value)))
+            prepare()
+            playWhenReady = true
+        }
     }
 
     fun volverCancion(context: Context) {
-        _exoPlayer.value!!.stop()
-        _exoPlayer.value!!.clearMediaItems()
+        _exoPlayer.value?.apply {
+            stop()
+            clearMediaItems()
 
-        val currentIndex = listaCanciones.indexOf(_actual.value)
-        val previousIndex = if (currentIndex <= 0) listaCanciones.size - 1 else currentIndex - 1
+            val currentIndex = listaCanciones.indexOf(_actual.value)
+            val prevIndex = if (currentIndex <= 0) listaCanciones.size - 1 else currentIndex - 1
 
-        _actual.value = listaCanciones[previousIndex]
-        _imagenActual.value = datosCanciones[_actual.value]?.imagen ?: R.drawable.ibai
+            _actual.value = listaCanciones[prevIndex]
+            _imagenActual.value = datosCanciones[_actual.value]?.imagen ?: R.drawable.ibai
+            _titulo.value =
+                datosCanciones[_actual.value]?.titulo ?: datosCanciones[R.raw.songone]!!.titulo
 
-        _exoPlayer.value!!.setMediaItem(MediaItem.fromUri(obtenerRuta(context, _actual.value)))
-        _exoPlayer.value!!.prepare()
-        _exoPlayer.value!!.playWhenReady = true
+            setMediaItem(MediaItem.fromUri(obtenerRuta(context, _actual.value)))
+            prepare()
+            playWhenReady = true
+        }
     }
 
     fun shuffleSongs(context: Context) {
         if (!isShuffled) {
-
             Collections.shuffle(listaCanciones)
-            isShuffled = true
-
         } else {
-
             listaCanciones = original.toList()
-            isShuffled = false
         }
+
+        isShuffled = !isShuffled
 
         _exoPlayer.value?.let { exoPlayer ->
             exoPlayer.stop()
@@ -219,10 +201,7 @@ class ExoPlayerViewModel : ViewModel() {
             if (!isShuffled) {
                 CambiarCancion(context)
             }
-
         }
-
-
     }
 
     fun loop() {
@@ -240,8 +219,6 @@ class ExoPlayerViewModel : ViewModel() {
     fun onSliderInteractionEnd() {
         _isUserInteracting.value = false
     }
-
-
 }
 
 
