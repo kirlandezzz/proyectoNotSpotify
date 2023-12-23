@@ -57,11 +57,11 @@ class ExoPlayerViewModel : ViewModel() {
     private var isLooped = false
 
     private val datosCanciones = mapOf(
-        R.raw.songone to Cancion("Song One", R.drawable.ibai, Color.Red),
-        R.raw.songtwo to Cancion("Song Two", R.drawable.bunny, Color.Green),
-        R.raw.songthree to Cancion("Song Three", R.drawable.crab, Color.Blue),
-        R.raw.songfour to Cancion("Song Four", R.drawable.lethal, Color.Yellow),
-        R.raw.songfive to Cancion("Song Five", R.drawable.covid, Color.Magenta)
+        R.raw.songone to Cancion("Ibai Mason - IA", R.drawable.ibai, Color.Red),
+        R.raw.songtwo to Cancion("Bad Bunny Me cago - IA", R.drawable.bunny, Color.Green),
+        R.raw.songthree to Cancion("Crab Rave - Noise Storm", R.drawable.crab, Color.Blue),
+        R.raw.songfour to Cancion("Icecream - Lethal Company", R.drawable.lethal, Color.Yellow),
+        R.raw.songfive to Cancion("Laboratory - Dville Santa", R.drawable.covid, Color.Magenta)
     )
     private val _imagenActual = MutableStateFlow(R.drawable.ibai) // Imagen predeterminada
     val imagenActual = _imagenActual.asStateFlow()
