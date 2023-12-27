@@ -14,10 +14,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.ejerciciosexoplayer.screens.AlbumScreen
 import com.example.ejerciciosexoplayer.screens.BarraInferior
 import com.example.ejerciciosexoplayer.screens.BarraSuperior
 import com.example.ejerciciosexoplayer.screens.ExoPlayerScreen
 import com.example.ejerciciosexoplayer.screens.PictureScreen
+import com.example.ejerciciosexoplayer.screens.SpotifyLikeScreen
 import com.example.ejerciciosexoplayer.shared.Rutas
 import com.example.ejerciciosexoplayer.shared.ScaffoldViewModel
 import com.example.ejerciciosexoplayer.ui.theme.Blanco
@@ -41,9 +43,12 @@ fun GrafoNavegacion() {
             BarraInferior(funcionNavegarPlayer = {
                 navController.navigate(Rutas.Player.ruta)
             }, funcionNavegarFoto = {
-                if (rutaActual != Rutas.Foto.ruta) {
-                    navController.navigate(Rutas.Foto.ruta)
-                }
+
+            //esto haace que no se reproduzca exoplayer screen doble
+
+                //if (rutaActual != Rutas.Foto.ruta) {
+                  //  navController.navigate(Rutas.Foto.ruta)
+                //}
 
             })
         },
@@ -56,7 +61,7 @@ fun GrafoNavegacion() {
                     .padding(paddingValues),
                 color = Blanco
             ) {
-                NavHost(navController = navController, startDestination = Rutas.Player.ruta) {
+                NavHost(navController = navController, startDestination = Rutas.Album.ruta) {
                     composable(Rutas.Player.ruta) {
                         Log.d("ExoplayerDoble", "exoplayer screen")
                         ExoPlayerScreen(viewModelScaffold)
@@ -66,6 +71,14 @@ fun GrafoNavegacion() {
                         PictureScreen(viewModelScaffold)
                     }
 
+                    composable(Rutas.Home.ruta) {
+                        Log.d("ExoplayerDoble", "exoplayer screen")
+                        SpotifyLikeScreen(viewModelScaffold, navController)
+                    }
+                    composable(Rutas.Album.ruta) {
+                        Log.d("ExoplayerDoble", "exoplayer screen")
+                        AlbumScreen()
+                    }
                 }
             }
 
