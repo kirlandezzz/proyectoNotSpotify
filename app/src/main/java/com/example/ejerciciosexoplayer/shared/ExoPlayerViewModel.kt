@@ -6,6 +6,7 @@ import android.content.ContentResolver
 import android.content.Context
 import android.content.res.Resources
 import android.net.Uri
+import android.util.Log
 import androidx.annotation.AnyRes
 import androidx.annotation.OptIn
 import androidx.compose.ui.graphics.Color
@@ -76,10 +77,10 @@ class ExoPlayerViewModel : ViewModel() {
     private val _isUserInteracting = MutableStateFlow(false)
 
     fun crearExoPlayer(context: Context) {
+        Log.d("ExoplayerDoble", "crear exoplayer")
         _exoPlayer.value = ExoPlayer.Builder(context).build()
         _exoPlayer.value!!.prepare()
         _exoPlayer.value!!.playWhenReady = true
-
     }
 
     fun hacerSonarMusica(context: Context) {
@@ -101,13 +102,6 @@ class ExoPlayerViewModel : ViewModel() {
                         }
                     }
 
-                    viewModelScope.launch {
-                        while (isActive) {
-                            _progreso.value = _exoPlayer.value!!.currentPosition.toInt()
-                            delay(1000)
-                        }
-
-                    }
                 } else if (playbackState == Player.STATE_BUFFERING) {
                     // El Player está cargando el archivo, preparando la reproducción.
                     // No está listo, pero está en ello.

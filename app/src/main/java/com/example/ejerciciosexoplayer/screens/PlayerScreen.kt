@@ -1,6 +1,7 @@
 package com.example.ejerciciosexoplayer.screens
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -55,6 +56,7 @@ fun ExoPlayerScreen(viewModelScaffold: ScaffoldViewModel = viewModel()) {
 
 
     LaunchedEffect(Unit) {
+        Log.d("ExoplayerDoble", "launched effect")
         exoPlayerViewModel.crearExoPlayer(contexto)
         exoPlayerViewModel.hacerSonarMusica(contexto)
     }
