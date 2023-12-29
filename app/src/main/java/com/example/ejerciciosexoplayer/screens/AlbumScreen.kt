@@ -1,49 +1,31 @@
 package com.example.ejerciciosexoplayer.screens
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.ejerciciosexoplayer.R
-
-data class Song(val title: String)
-
-// Dummy data for preview
-val songsSample = listOf(
-    Song("All Wrong"),
-    Song("Things I Can't Change"),
-    Song("All Wrong"),
-    Song("Things I Can't Change"),
-    Song("All Wrong"),
-    Song("Things I Can't Change"),
-    Song("All Wrong"),
-    Song("Things I Can't Change"),
-    Song("All Wrong"),
-    Song("Things I Can't Change"),
-
-
-    )
+import com.example.ejerciciosexoplayer.objetos.SampleData.Companion.albumsWithSongsMap
 
 @Composable
-fun AlbumScreen() {
-    // In a real app, you might load the image from a URL using Coil or another image loading library
+fun AlbumScreen(albumId: String) {
+    val albumWithSongs = albumsWithSongsMap.getValue(albumId.toInt())
+    val album = albumWithSongs.album
+    val canciones = albumWithSongs.songs
+
     val imagePainter =
-        painterResource(id = R.drawable.ibai)
-
-
-
+        painterResource(id = album.imagenID)
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -56,10 +38,9 @@ fun AlbumScreen() {
         ) {
             Image(
                 painter = imagePainter,
-                contentDescription = "Album Cover",
+                contentDescription = null,
                 modifier = Modifier
                     .size(200.dp)
-
             )
             Text(
                 text = "What You Don't See",
@@ -79,22 +60,24 @@ fun AlbumScreen() {
                 Text("Shuffle Play")
             }
         }
-
+// TODO: Implementar Clickable en cada canción dentro del álbum para invocar a PlayerScreen con el álbum actual
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(6f)
         )
         {
-            items(songsSample) { song ->
+            items(canciones) { cancion ->
                 Text(
-                    text = song.title,
+                    text = cancion.titulo,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp, horizontal = 16.dp)
+                    // TODO: Agregar el modificador Clickable y la acción correspondiente
                 )
             }
         }
+
 
         Text(
             text = "2013 • 11 songs - 29 min 52 sec",

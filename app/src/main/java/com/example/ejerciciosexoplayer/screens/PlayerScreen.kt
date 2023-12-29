@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ejerciciosexoplayer.R
+import com.example.ejerciciosexoplayer.objetos.EstadoExoPlayer
 import com.example.ejerciciosexoplayer.shared.ExoPlayerViewModel
 import com.example.ejerciciosexoplayer.shared.ScaffoldViewModel
 import com.example.ejerciciosexoplayer.ui.theme.Azul
@@ -42,18 +43,13 @@ fun ExoPlayerScreen(viewModelScaffold: ScaffoldViewModel = viewModel()) {
 
     /* Variables de estado */
     val exoPlayerViewModel: ExoPlayerViewModel = viewModel()
-    val duracion by exoPlayerViewModel.duracion.collectAsStateWithLifecycle()
-    val posicion by exoPlayerViewModel.progreso.collectAsStateWithLifecycle()
-    val imagenActual by exoPlayerViewModel.imagenActual.collectAsStateWithLifecycle()
-    val tituloActual by exoPlayerViewModel.titulo.collectAsStateWithLifecycle()
-    val posSlider by exoPlayerViewModel.posSlider.collectAsStateWithLifecycle()
+    val estadoExoPlayer = recolectarEstadosExoPlayer(exoPlayerViewModel)
 
     //Barra duracion en min y seg
-    val minutosDuracion = duracion / 1000 / 60
-    val segundosDuracion = duracion / 1000 % 60
-    val minutosPosicion = posicion / 1000 / 60
-    val segundosPosicion = posicion / 1000 % 60
-
+    val minutosDuracion = estadoExoPlayer.duracion / 1000 / 60
+    val segundosDuracion = estadoExoPlayer.duracion / 1000 % 60
+    val minutosPosicion = estadoExoPlayer.posicion / 1000 / 60
+    val segundosPosicion = estadoExoPlayer.posicion / 1000 % 60
 
     LaunchedEffect(Unit) {
         Log.d("ExoplayerDoble", "launched effect")
@@ -65,17 +61,18 @@ fun ExoPlayerScreen(viewModelScaffold: ScaffoldViewModel = viewModel()) {
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
         Text(
-            text = tituloActual, fontSize = 32.sp, modifier = Modifier.weight(1.5f)
+            text = estadoExoPlayer.tituloActual, fontSize = 32.sp, modifier = Modifier.weight(1.5f)
         )
 
         Image(
-            painter = painterResource(id = imagenActual),
+            painter = painterResource(id = estadoExoPlayer.imagenActual),
             contentDescription = null,
             modifier = Modifier.weight(4f),
         )
 
-        SliderReproductor(value = posSlider, onValueChange = { value ->
+        SliderReproductor(value = estadoExoPlayer.posSlider, onValueChange = { value ->
             exoPlayerViewModel.moverSlider(value)
         }, onValueChangeFinished = { exoPlayerViewModel.onSliderInteractionEnd() })
 
@@ -96,6 +93,17 @@ fun ExoPlayerScreen(viewModelScaffold: ScaffoldViewModel = viewModel()) {
             BotonesReproductor(exoPlayerViewModel, contexto)
         }
     }
+}
+
+@Composable
+fun recolectarEstadosExoPlayer(exoPlayerViewModel: ExoPlayerViewModel): EstadoExoPlayer {
+    return EstadoExoPlayer(
+        duracion = exoPlayerViewModel.duracion.collectAsStateWithLifecycle().value,
+        posicion = exoPlayerViewModel.progreso.collectAsStateWithLifecycle().value,
+        imagenActual = exoPlayerViewModel.imagenActual.collectAsStateWithLifecycle().value,
+        tituloActual = exoPlayerViewModel.titulo.collectAsStateWithLifecycle().value,
+        posSlider = exoPlayerViewModel.posSlider.collectAsStateWithLifecycle().value
+    )
 }
 
 @Composable

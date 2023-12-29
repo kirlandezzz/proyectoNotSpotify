@@ -98,7 +98,7 @@ class ExoPlayerViewModel : ViewModel() {
                         while (isActive) {
                             _progreso.value = _exoPlayer.value!!.currentPosition.toInt()
                             _posSlider.value = _progreso.value.toFloat() / _duracion.value
-                            delay(1000)
+                            delay(100)
                         }
                     }
 
@@ -120,6 +120,9 @@ class ExoPlayerViewModel : ViewModel() {
             }
         })
     }
+
+
+
 
     override fun onCleared() {
         _exoPlayer.value!!.release()
@@ -200,7 +203,6 @@ class ExoPlayerViewModel : ViewModel() {
 
     fun loop() {
         isLooped = !isLooped
-
     }
 
     fun moverSlider(value: Float) {
@@ -213,6 +215,7 @@ class ExoPlayerViewModel : ViewModel() {
     fun onSliderInteractionEnd() {
         _isUserInteracting.value = false
     }
+
 }
 
 
@@ -225,3 +228,4 @@ fun obtenerRuta(context: Context, @AnyRes resId: Int): Uri {
         ) + '/' + res.getResourceEntryName(resId)
     )
 }
+

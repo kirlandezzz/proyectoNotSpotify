@@ -19,7 +19,7 @@ import com.example.ejerciciosexoplayer.screens.BarraInferior
 import com.example.ejerciciosexoplayer.screens.BarraSuperior
 import com.example.ejerciciosexoplayer.screens.ExoPlayerScreen
 import com.example.ejerciciosexoplayer.screens.PictureScreen
-import com.example.ejerciciosexoplayer.screens.SpotifyLikeScreen
+import com.example.ejerciciosexoplayer.screens.homeScreen
 import com.example.ejerciciosexoplayer.shared.Rutas
 import com.example.ejerciciosexoplayer.shared.ScaffoldViewModel
 import com.example.ejerciciosexoplayer.ui.theme.Blanco
@@ -38,50 +38,46 @@ fun GrafoNavegacion() {
     // View model general que controla diversos valores del Scaffold -> el título y la barra de navegación
     val viewModelScaffold: ScaffoldViewModel = viewModel()
 
-    Scaffold(topBar = { BarraSuperior(titulo = "Not Spotify") },
-        bottomBar = {
-            BarraInferior(funcionNavegarPlayer = {
-                navController.navigate(Rutas.Player.ruta)
-            }, funcionNavegarFoto = {
+    Scaffold(topBar = { BarraSuperior(titulo = "Not Spotify") }, bottomBar = {
+        BarraInferior(funcionNavegarPlayer = {
+            navController.navigate(Rutas.Player.ruta)
+        }, funcionNavegarFoto = {
 
             //esto haace que no se reproduzca exoplayer screen doble
 
-                //if (rutaActual != Rutas.Foto.ruta) {
-                  //  navController.navigate(Rutas.Foto.ruta)
-                //}
+            //if (rutaActual != Rutas.Foto.ruta) {
+            //  navController.navigate(Rutas.Foto.ruta)
+            //}
 
-            })
-        },
-        content = {
-            // paddingValues representa los dp que hay para evitar que el contenido se solape con las barras
-                paddingValues ->
-            Surface(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                color = Blanco
-            ) {
-                NavHost(navController = navController, startDestination = Rutas.Album.ruta) {
-                    composable(Rutas.Player.ruta) {
-                        Log.d("ExoplayerDoble", "exoplayer screen")
-                        ExoPlayerScreen(viewModelScaffold)
-                    }
+        })
+    }, content = {
+        // paddingValues representa los dp que hay para evitar que el contenido se solape con las barras
+            paddingValues ->
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues), color = Blanco
+        ) {
+            NavHost(navController = navController, startDestination = Rutas.Home.ruta) {
+                composable(Rutas.Player.ruta) {
+                    Log.d("ExoplayerDoble", "exoplayer screen")
+                    ExoPlayerScreen(viewModelScaffold)
+                }
+                composable(Rutas.Foto.ruta) {
+                    PictureScreen(viewModelScaffold)
+                }
+                composable(Rutas.Home.ruta) {
+                    Log.d("ExoplayerDoble", "exoplayer screen")
+                    homeScreen(viewModelScaffold, navController)
+                }
+                composable("${Rutas.Album.ruta}/{albumId}") { backStackEntry ->
+                    val albumId = backStackEntry.arguments?.getString("albumId")
 
-                    composable(Rutas.Foto.ruta) {
-                        PictureScreen(viewModelScaffold)
-                    }
-
-                    composable(Rutas.Home.ruta) {
-                        Log.d("ExoplayerDoble", "exoplayer screen")
-                        SpotifyLikeScreen(viewModelScaffold, navController)
-                    }
-                    composable(Rutas.Album.ruta) {
-                        Log.d("ExoplayerDoble", "exoplayer screen")
-                        AlbumScreen()
+                    if (albumId != null) {
+                        AlbumScreen(albumId)
                     }
                 }
             }
-
-        })
-
+        }
+    })
 }
