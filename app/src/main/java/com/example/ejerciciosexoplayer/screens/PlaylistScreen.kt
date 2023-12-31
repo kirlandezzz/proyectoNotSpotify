@@ -27,7 +27,7 @@ import com.example.ejerciciosexoplayer.shared.ScaffoldViewModel
 
 @Composable
 fun homeScreen(viewModelScaffold: ScaffoldViewModel = viewModel(), navController: NavController) {
-    val albums = albumsSample
+    val albums = listOf(albumsSample)
     Column {
         Text(
             text = "Escucha tus albums", modifier = Modifier.padding(8.dp)
@@ -37,12 +37,8 @@ fun homeScreen(viewModelScaffold: ScaffoldViewModel = viewModel(), navController
             horizontalArrangement = Arrangement.spacedBy(16.dp),
 
             ) {
-            try {
-                items(albums) { album ->
-                    AlbumItem(album, navController)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
+            items(albums.first()) { album ->
+                AlbumItem(album, navController)
             }
         }
         Text(
@@ -53,7 +49,7 @@ fun homeScreen(viewModelScaffold: ScaffoldViewModel = viewModel(), navController
             horizontalArrangement = Arrangement.spacedBy(16.dp),
 
             ) {
-            items(albums) { album ->
+            items(albums.first()) { album ->
                 AlbumItem(album, navController)
             }
         }

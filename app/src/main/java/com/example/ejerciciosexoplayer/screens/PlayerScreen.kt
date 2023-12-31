@@ -33,17 +33,16 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ejerciciosexoplayer.R
 import com.example.ejerciciosexoplayer.objetos.EstadoExoPlayer
 import com.example.ejerciciosexoplayer.shared.ExoPlayerViewModel
-import com.example.ejerciciosexoplayer.shared.ScaffoldViewModel
 import com.example.ejerciciosexoplayer.ui.theme.Azul
 import com.example.ejerciciosexoplayer.ui.theme.AzulOsc
 
 @Composable
-fun ExoPlayerScreen(viewModelScaffold: ScaffoldViewModel = viewModel()) {
+fun ExoPlayerScreen(albumId: String, cancionId : String) {
     val contexto = LocalContext.current
 
     /* Variables de estado */
     val exoPlayerViewModel: ExoPlayerViewModel = viewModel()
-    val estadoExoPlayer = recolectarEstadosExoPlayer(exoPlayerViewModel)
+    val estadoExoPlayer = RecolectarEstadosExoPlayer(exoPlayerViewModel)
 
     //Barra duracion en min y seg
     val minutosDuracion = estadoExoPlayer.duracion / 1000 / 60
@@ -52,8 +51,8 @@ fun ExoPlayerScreen(viewModelScaffold: ScaffoldViewModel = viewModel()) {
     val segundosPosicion = estadoExoPlayer.posicion / 1000 % 60
 
     LaunchedEffect(Unit) {
-        Log.d("ExoplayerDoble", "launched effect")
-        exoPlayerViewModel.crearExoPlayer(contexto)
+        Log.d("Exoplayer", "launched effect")
+        exoPlayerViewModel.crearExoPlayer(contexto,albumId.toInt(), cancionId.toInt())
         exoPlayerViewModel.hacerSonarMusica(contexto)
     }
 
@@ -96,7 +95,7 @@ fun ExoPlayerScreen(viewModelScaffold: ScaffoldViewModel = viewModel()) {
 }
 
 @Composable
-fun recolectarEstadosExoPlayer(exoPlayerViewModel: ExoPlayerViewModel): EstadoExoPlayer {
+fun RecolectarEstadosExoPlayer(exoPlayerViewModel: ExoPlayerViewModel): EstadoExoPlayer {
     return EstadoExoPlayer(
         duracion = exoPlayerViewModel.duracion.collectAsStateWithLifecycle().value,
         posicion = exoPlayerViewModel.progreso.collectAsStateWithLifecycle().value,

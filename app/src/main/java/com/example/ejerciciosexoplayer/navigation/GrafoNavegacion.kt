@@ -40,7 +40,9 @@ fun GrafoNavegacion() {
 
     Scaffold(topBar = { BarraSuperior(titulo = "Not Spotify") }, bottomBar = {
         BarraInferior(funcionNavegarPlayer = {
-            navController.navigate(Rutas.Player.ruta)
+            navController.navigate(Rutas.Home.ruta)
+            if (rutaActual == Rutas.Player.ruta){
+            }
         }, funcionNavegarFoto = {
 
             //esto haace que no se reproduzca exoplayer screen doble
@@ -59,22 +61,25 @@ fun GrafoNavegacion() {
                 .padding(paddingValues), color = Blanco
         ) {
             NavHost(navController = navController, startDestination = Rutas.Home.ruta) {
-                composable(Rutas.Player.ruta) {
-                    Log.d("ExoplayerDoble", "exoplayer screen")
-                    ExoPlayerScreen(viewModelScaffold)
+                composable("${Rutas.Player.ruta}/{albumId}/{cancionId}") {
+                    val albumId = it.arguments?.getString("albumId")
+                    val cancionId = it.arguments?.getString("cancionId")
+
+                    if (albumId != null && cancionId != null) {
+                        ExoPlayerScreen(albumId, cancionId)
+                    }
                 }
                 composable(Rutas.Foto.ruta) {
                     PictureScreen(viewModelScaffold)
                 }
                 composable(Rutas.Home.ruta) {
-                    Log.d("ExoplayerDoble", "exoplayer screen")
                     homeScreen(viewModelScaffold, navController)
                 }
-                composable("${Rutas.Album.ruta}/{albumId}") { backStackEntry ->
-                    val albumId = backStackEntry.arguments?.getString("albumId")
+                composable("${Rutas.Album.ruta}/{albumId}") {
+                    val albumId = it.arguments?.getString("albumId")
 
                     if (albumId != null) {
-                        AlbumScreen(albumId)
+                        AlbumScreen(albumId, navController)
                     }
                 }
             }

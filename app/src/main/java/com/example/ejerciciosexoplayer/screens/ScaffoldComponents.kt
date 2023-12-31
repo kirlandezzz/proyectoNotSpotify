@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.PictureInPicture
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.BottomAppBar
@@ -19,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.ejerciciosexoplayer.R
 import com.example.ejerciciosexoplayer.ui.theme.AzulOsc
 import com.google.common.base.Defaults
 
@@ -34,7 +36,7 @@ fun BarraInferior(
     ) {
         Row() {
             IconButton(onClick = funcionNavegarPlayer, modifier = Modifier.weight(1f)) {
-                Icon(Icons.Default.PlayArrow, contentDescription = "")
+                Icon(Icons.Default.Home, contentDescription = "")
             }
             IconButton(onClick = funcionNavegarFoto, modifier = Modifier.weight(1f)) {
                 Icon(Icons.Default.PictureInPicture, contentDescription = "")
